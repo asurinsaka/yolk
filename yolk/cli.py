@@ -13,7 +13,6 @@ License : BSD (See COPYING)
 
 """
 
-from __future__ import print_function
 
 import argparse
 import inspect
@@ -52,7 +51,7 @@ class YolkException(Exception):
     """Exception for communicating top-level error to user."""
 
 
-class StdOut(object):
+class StdOut:
 
     """Filter stdout or stderr from specific modules So far this is just used
     for pkg_resources."""
@@ -97,7 +96,7 @@ class StdOut(object):
             self.write(line)
 
 
-class Yolk(object):
+class Yolk:
 
     """Main class for yolk."""
 
@@ -201,7 +200,7 @@ class Yolk(object):
              self.version,
              self.all_versions) = self.parse_pkg_ver(want_installed)
             if want_installed and not self.project_name:
-                print(u'{} is not installed'.format(pkg_spec),
+                print(f'{pkg_spec} is not installed',
                       file=sys.stderr)
                 return 1
 
@@ -255,7 +254,7 @@ class Yolk(object):
                 pkg_list,
                 self.pypi,
                 user_installs_only=self.options.user):
-            print(u'{} {} ({})'.format(project_name,
+            print('{} {} ({})'.format(project_name,
                                        version,
                                        newest))
 
@@ -334,16 +333,16 @@ class Yolk(object):
             results = True
         if not results and self.project_name:
             if self.version:
-                pkg_spec = '{}=={}'.format(self.project_name, self.version)
+                pkg_spec = f'{self.project_name}=={self.version}'
             else:
                 pkg_spec = self.project_name
             if show == 'all':
                 print(
-                    u'There are no versions of {} installed'.format(pkg_spec),
+                    f'There are no versions of {pkg_spec} installed',
                     file=sys.stderr)
             else:
                 print(
-                    u'There are no {} versions of {} installed'.format(
+                    'There are no {} versions of {} installed'.format(
                         show, pkg_spec),
                     file=sys.stderr)
             return 2
@@ -386,12 +385,12 @@ class Yolk(object):
                 active_status = 'non-active'
         if develop:
             if self.options.fields:
-                development_status = '! ({})'.format(develop)
+                development_status = f'! ({develop})'
             else:
-                development_status = 'development ({})'.format(develop)
+                development_status = f'development ({develop})'
         else:
             development_status = installed_by
-        status = '{} {}'.format(active_status, development_status)
+        status = f'{active_status} {development_status}'
         if self.options.fields:
             print(
                 '{} ({}){} {}'.format(metadata['Name'], version, active_status,
@@ -403,12 +402,12 @@ class Yolk(object):
         if self.options.fields:
             for field in metadata.keys():
                 if field.lower() in self.options.fields:
-                    print(u'    {}: {}'.format(field, metadata[field]))
+                    print(f'    {field}: {metadata[field]}')
             print()
         elif show_metadata:
             for field in metadata.keys():
                 if field != 'Name' and field != 'Summary':
-                    print(u'    {}: {}'.format(field, metadata[field]))
+                    print(f'    {field}: {metadata[field]}')
 
     def show_deps(self):
         """Show dependencies for package(s)
@@ -434,7 +433,7 @@ class Yolk(object):
                         if self.version and i == len(list(
                                 pkg._dep_map.values())[0]):
                             print(pkg.project_name, pkg.version)
-                        print(u'  ' + str(list(
+                        print('  ' + str(list(
                             pkg._dep_map.values())[0][i - 1]))
                     i -= 1
             else:
@@ -464,10 +463,10 @@ class Yolk(object):
         for entry in changelog:
             pkg = entry[0]
             if pkg != last_pkg:
-                print(u'{} {}\n\t{}'.format(entry[0], entry[1], entry[3]))
+                print(f'{entry[0]} {entry[1]}\n\t{entry[3]}')
                 last_pkg = pkg
             else:
-                print(u'\t{}'.format(entry[3]))
+                print(f'\t{entry[3]}')
 
         return 0
 
@@ -490,7 +489,7 @@ class Yolk(object):
             return 1
 
         for release in latest_releases:
-            print(u'{} {}'.format(release[0], release[1]))
+            print(f'{release[0]} {release[1]}')
         return 0
 
     def show_download_links(self):
@@ -543,7 +542,7 @@ class Yolk(object):
         url = get_download_uri(self.project_name, version, source,
                                self.options.pypi_index)
         if url:
-            print(u'{}'.format(url))
+            print(f'{url}')
 
     def fetch(self):
         """Download a package.
@@ -575,7 +574,7 @@ class Yolk(object):
         if uri:
             return self.fetch_uri(directory, uri)
         else:
-            print(u'No {} URI found for package: {}'.format(
+            print('No {} URI found for package: {}'.format(
                 self.options.file_type, self.project_name))
             return 1
 
@@ -594,12 +593,12 @@ class Yolk(object):
         """
         filename = os.path.basename(urlparse(uri)[2])
         if os.path.exists(filename):
-            print(u'File exists: ' + filename, file=sys.stderr)
+            print('File exists: ' + filename, file=sys.stderr)
             return 1
 
         try:
             downloaded_filename, headers = urlretrieve(uri, filename)
-        except IOError as err_msg:
+        except OSError as err_msg:
             print(
                 'Error downloading package {} from URL {}'.format(
                     filename, uri),
@@ -630,7 +629,7 @@ class Yolk(object):
             raise YolkException('Do you have subversion installed?')
         if os.path.exists(directory):
             raise YolkException(
-                'Checkout directory exists - {}'.format(directory))
+                f'Checkout directory exists - {directory}')
         try:
             os.mkdir(directory)
         except OSError as err_msg:
@@ -689,7 +688,7 @@ class Yolk(object):
                         (self.options.fields and
                          key.lower() in self.options.fields)
                     ):
-                        print(u'{}: {}'.format(key, metadata[key]))
+                        print(f'{key}: {metadata[key]}')
         return 0
 
     def versions_available(self):
@@ -705,11 +704,11 @@ class Yolk(object):
         else:
             if self.version:
                 print(
-                    'No package found for version {}'.format(self.version),
+                    f'No package found for version {self.version}',
                     file=sys.stderr)
             else:
                 print(
-                    'No package found for {}'.format(self.project_name),
+                    f'No package found for {self.project_name}',
                     file=sys.stderr)
             return 1
         return 0
@@ -851,7 +850,7 @@ class Yolk(object):
             try:
                 plugin = entry_point.load()
                 print(plugin.__module__)
-                print(u'   {}'.format(entry_point))
+                print(f'   {entry_point}')
                 if plugin.__doc__:
                     print(plugin.__doc__)
                 print()
@@ -867,7 +866,7 @@ class Yolk(object):
 
     def yolk_version(self):
         """Show yolk's version."""
-        print(u'yolk {}'.format(VERSION))
+        print(f'yolk {VERSION}')
 
     def parse_pkg_ver(self, want_installed):
         """Return tuple with project_name and version from CLI args If the user
@@ -898,7 +897,7 @@ class Yolk(object):
                 project_name)
 
             if not len(all_versions):
-                msg = "I'm afraid we have no '{}' at ".format(project_name)
+                msg = f"I'm afraid we have no '{project_name}' at "
                 msg += 'The Cheese Shop. A little Red Leicester, perhaps?'
                 print(msg, file=sys.stderr)
                 sys.exit(2)
@@ -1063,7 +1062,7 @@ def print_pkg_versions(project_name, versions):
 
     """
     for ver in versions:
-        print(u'{} {}'.format(project_name, ver))
+        print(f'{project_name} {ver}')
 
 
 def validate_pypi_opts(parser):
@@ -1102,7 +1101,7 @@ def _updates(names, pypi, user_installs_only):
 
             width = terminal_width()
             if width:
-                print(u'\rChecking {}'.format(dist.project_name).ljust(width),
+                print(f'\rChecking {dist.project_name}'.ljust(width),
                       end='',
                       file=sys.stderr)
 
@@ -1115,7 +1114,7 @@ def _updates(names, pypi, user_installs_only):
 
     try:
         results = pool.map(worker_function, names)
-    except IOError as _exception:
+    except OSError as _exception:
         exception = _exception
 
     print('\r', end='', file=sys.stderr)
@@ -1169,7 +1168,7 @@ def main():
     try:
         my_yolk = Yolk()
         my_yolk.run()
-    except (HTTPException, IOError, YolkException) as exception:
+    except (HTTPException, OSError, YolkException) as exception:
         print(exception, file=sys.stderr)
         return 1
     except KeyboardInterrupt:

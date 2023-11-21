@@ -22,9 +22,6 @@ python -m yolk --latest-releases=1
 python -m yolk --show-updates
 python -m yolk --show-updates --user
 
-if [ "$TRAVIS_PYTHON_VERSION" != "2.7" ]
-then
-    python -m doctest yolk/utils.py
-fi
+python -m doctest yolk/utils.py
 
 echo -e '\x1b[01;32mOkay\x1b[0m'
