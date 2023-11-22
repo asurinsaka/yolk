@@ -21,7 +21,9 @@ else:
     import xmlrpc.client as xmlrpclib
     import urllib.request as urllib2
 import os
+import random
 import time
+import xmlrpc
 
 from yolk.utils import get_yolk_dir
 
@@ -63,7 +65,22 @@ class ProxyTransport(xmlrpclib.Transport):
         proxy_handler = urllib2.ProxyHandler()
         opener = urllib2.build_opener(proxy_handler)
         fhandle = opener.open(request)
-        return self.parse_response(fhandle)
+
+        retry = 3
+        import xml
+        while True:
+            try:
+                res = self.parse_response(fhandle)
+                print(res)
+                return res
+            except (xmlrpc.client.Fault, xml.parsers.expat.ExpatError)  as e:
+                print(request_body)
+                print(e)
+                retry -= 1
+                if retry <= 0:
+                    raise e
+                time.sleep(random.randint(3, 5))
+            time.sleep(1)
 
 
 def check_proxy_setting():
