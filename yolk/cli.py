@@ -26,16 +26,10 @@ import subprocess
 import sys
 import webbrowser
 
-if sys.version_info[0] == 2:
-    from httplib import HTTPException
-    from urllib import urlretrieve
-    from urlparse import urlparse
-    from xmlrpclib import Fault as XMLRPCFault
-else:
-    from http.client import HTTPException
-    from urllib.request import urlretrieve
-    from urllib.parse import urlparse
-    from xmlrpc.client import Fault as XMLRPCFault
+from http.client import HTTPException
+from urllib.request import urlretrieve
+from urllib.parse import urlparse
+from xmlrpc.client import Fault as XMLRPCFault
 
 from distutils.sysconfig import get_python_lib
 from yolk.metadata import get_metadata
