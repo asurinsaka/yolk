@@ -37,7 +37,7 @@ def get_metadata(dist):
         message = email.message_from_string(text)
         for header in [l for l in message._headers]:
             metadata[header[0]] = header[1]
-    except IOError:
+    except OSError:
         # No egg-file, installed using other package manager.
         pass
 

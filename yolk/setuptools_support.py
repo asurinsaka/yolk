@@ -50,7 +50,7 @@ def get_download_uri(package_name, version, source, index_url=None):
         index_url = 'https://pypi.python.org/pypi'
 
     if version:
-        pkg_spec = '%s==%s' % (package_name, version)
+        pkg_spec = f'{package_name}=={version}'
     else:
         pkg_spec = package_name
     req = pkg_resources.Requirement.parse(pkg_spec)

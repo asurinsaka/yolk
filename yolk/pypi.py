@@ -10,7 +10,6 @@ License  : BSD (See COPYING)
 
 """
 
-from __future__ import print_function
 
 import ast
 import re
@@ -22,7 +21,9 @@ else:
     import xmlrpc.client as xmlrpclib
     import urllib.request as urllib2
 import os
+import random
 import time
+import xmlrpc
 
 from yolk.utils import get_yolk_dir
 
@@ -64,7 +65,22 @@ class ProxyTransport(xmlrpclib.Transport):
         proxy_handler = urllib2.ProxyHandler()
         opener = urllib2.build_opener(proxy_handler)
         fhandle = opener.open(request)
-        return self.parse_response(fhandle)
+
+        retry = 3
+        import xml
+        while True:
+            try:
+                res = self.parse_response(fhandle)
+                print(res)
+                return res
+            except (xmlrpc.client.Fault, xml.parsers.expat.ExpatError)  as e:
+                print(request_body)
+                print(e)
+                retry -= 1
+                if retry <= 0:
+                    raise e
+                time.sleep(random.randint(3, 5))
+            time.sleep(1)
 
 
 def check_proxy_setting():
@@ -83,12 +99,12 @@ def check_proxy_setting():
 
     if not http_proxy.startswith('http://'):
         match = re.match(r'(http://)?([-_\.A-Za-z]+):(\d+)', http_proxy)
-        os.environ['HTTP_PROXY'] = 'http://%s:%s' % (match.group(2),
+        os.environ['HTTP_PROXY'] = 'http://{}:{}'.format(match.group(2),
                                                      match.group(3))
     return
 
 
-class CheeseShop(object):
+class CheeseShop:
 
     """Interface to Python Package Index."""
 
@@ -116,7 +132,7 @@ class CheeseShop(object):
             os.mkdir(self.yolk_dir)
         try:
             self.pkg_list = self.query_cached_package_list()
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             self.fetch_pkg_list(True)
 
     def get_xmlrpc_server(self):
@@ -151,7 +167,7 @@ class CheeseShop(object):
 
     def query_cached_package_list(self):
         """Return list of cached package names from PYPI."""
-        with open(self.pkg_cache_file, 'r') as input_file:
+        with open(self.pkg_cache_file) as input_file:
             return ast.literal_eval(input_file.read())
 
     def fetch_pkg_list(self, ignore_cache=False):
