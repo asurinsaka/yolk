@@ -1103,8 +1103,8 @@ def _updates(names, pypi, user_installs_only):
                 dist.project_name)
         return (pkg, dist, project_name, versions)
 
-    import multiprocessing
-    pool = ThreadPool(multiprocessing.cpu_count())
+    # do not use multiprocessing, pypi will limit request frequency.
+    pool = ThreadPool(1)
 
     try:
         results = pool.map(worker_function, names)
